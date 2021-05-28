@@ -1,0 +1,94 @@
+\section{Cos'è Rust?}
+%mettere cappello introduttivo
+%perchè rust
+\label{section:rust_intro}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale= 0.5]{images/rustlang.jpg}
+    \caption{Logo del Linguaggio Rust affiancato a quello di Mozilla}
+    \label{fig:rustlang}
+\end{figure}
+
+Rust è un linguaggio di programmazione compilato, sviluppato da Mozilla Research in collaborazione con la comunità open source, perseguendo obiettivi di efficienza e sicurezza e idoneo a sviluppare software di sistema concorrente. \\
+Rust è sintatticamente simile al C++, ma a differenza di quest'ultimo, utilizza un meccanismo chiamato borrow checker che permette di salvaguardare la memoria senza ricorrere a \textit{gabrbage collection} o \textit{reference counting}(Che rimane una feature opzionale del linguaggio)\cite{10.5555/3271463}.
+
+\section{Storia del Linguaggio}
+Rust nasce da un progetto personale di \textit{Graydon Hoare}, un dipendente di Mozilla. Successivamente il progetto viene ampliato fino al suo annuncio nel 2010.
+Lo stesso anno iniziarono a scrivere il compilatore \textit{rustc} che venne compilato per la prima volta nel 2011.
+
+La pre-alpha release del linguaggio fu rilasciata del 2012, mentre la prima versione stabile, denominata Rust 1.0, fu distribuita del 2015. Dopo la vesione 1.0, release stabili sono rilasciate ogni 6 settimane \cite{rusthistory}.
+
+Nell'agosto del 2020, mozilla dovette licenziare 250 dei suoi 1000 dipendenti, a causa degli effetti perniciosi della pandemia di SARS-COV-2. Molti di questi erano parte del team che si occupava dello sviluppo e mantenimento di \textit{Rust}. Ciò gettò delle perplessità sul progetto.
+Nelle settima seguenti, il team di sviluppo di \textit{Rust} ammise il severo impatto dovuto alla pandemia, inoltre annunciò che stava lavorando per la formazione della Rust Foundation\cite{rust_is_in_trouble}.
+
+In data 8 febbraio 2021 fu annunciata la formazione della Rust Foundation che include cinque compagnie fondatrici (AWS, Huawei, Google, Microsoft e Mozilla).
+
+In data 6 Aprile 2021, Google ha annunciato supporto software per Rust nell'ambito di Android Open Source Project come alternativa a C/C++.
+
+\section{Caratteristiche del Linguaggio}
+Come accennato nella sezione~\ref{section:rust_intro}, il linguaggio \textit{Rust} è stato sviluppato per la programmazione di sistemi concorrenti. Per fare in modo di facilitarne l'implementazione e il mantenimento sono stati aggiunti meccanismi per la gestione sicura della memoria.
+
+\clearpage
+
+\subsection{NULL pointers e Dangling References}
+
+\textit{Rust} non permette l'utilizzo di puntatori a \textbf{NULL} e non permette, ad esempio ad una funzione, di restituire reference a variabili locali. Ogni reference restituito deve essere validato da un lifetime. I lifetime vengono controllati a tempo di compilazione attraverso il \textit{Borrow Checker} \cite{10.5555/3271463}.\\
+
+\begin{lstlisting}[language=C++, caption={Esempio di dangling reference C++}, captionpos=b]
+#include<cstring>
+
+&std::string dangling_function() {
+    std::string s = "Hello World";
+    return s;
+}
+\end{lstlisting}
+
+\subsection{Gestione della Memoria}
+Rust non implementa meccanismi di \textit{Garbage Collection}. Piuttosto le risorse sono gestite tramite il pattern \textbf{RAII} (Resource Acquisition Is Initialization).
+
+In \textit{Rust}, come in C++, esiste il concetto di \textit{Reference} (usando il simbolo \&), che a differenza di quest'ultimo vengono chiamati \textit{Borrow}. 
+
+La sicurezza dei \textit{Borrow} è verificata a tempo di compilazione dal \textit{Borrow Checker} che reviene comportamenti indefiniti.
+
+Esistono ue tipologie di borrow, immutabili (\&T) e mutabili (\&mut T). Possono esistere più borrow immutabili ad un certo valore in certo scope, ma solo un borrow mutabile \cite{10.5555/3271463}.
+
+\subsection{Ownership System}
+In \textit{Rust} le risorse hanno un singolo \textit{Owner} (propritario) e sono rilasciate nel momento in cui il questul'ultimo esce di scope. Quindi ogni risorsa ha lo stesso scope del proprio owner.
+
+In \textit{Rust} i valori possono essere passati per reference immutabile o mutabile, ricordando che possono esistere o più reference immutabili o un solo reference mutabile, ma anche per valore, in questo caso può avvenire una \textit{Move}. Per evitare \textit{Dangling References} l'owner originale non è più utilizzabile \cite{10.5555/3271463}.\\
+
+\begin{lstlisting}[caption={Esempio di Move. s1 non può più essere utilizzato, il nuovo Owner della stringa è s2.}, captionpos=b]
+
+fn main() {
+    let s1 = String::from("hello");
+    let s2 = s1;
+
+    println!("{}, world!", s1); //Compile time Error
+}
+\end{lstlisting}
+
+\section{Usi del linguaggio Rust}
+Date le sue caratteristiche di sicurezza e affidabilità, il linguaggio \textit{Rust} trova impiego in molti ambiti:
+
+\begin{itemize}
+    \item Alcuni conponenti di Mozilla Firefox sono scritti in Rust, tra cui \textit{Servo}, un motore di ricerca parallelo.
+    \item I componenti di alcuni sistemi operativi sono scritti in Rust, tra cui:
+    \begin{itemize}
+        \item Google Fuchsia: un sistema operativo
+        \item Stratis : un file manager
+        \item Redox : un sistema operativo Unix-like
+    \end{itemize}
+    \item Alcuni componenti di Microsoft Azure sono scritti in Rust
+\end{itemize}
+
+Dal 2016 al 2021 Rust è stato il lingaggio di programmazione più amato nella classifica stilata da Stack Overflow.
+
+
+
+
+
+
+
+
+

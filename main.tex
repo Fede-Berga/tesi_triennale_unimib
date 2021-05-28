@@ -1,0 +1,68 @@
+\documentclass[12pt,a4paper]{report}
+
+\usepackage[italian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+\usepackage[parfill]{parskip}
+\usepackage{booktabs}
+\usepackage{textcomp}
+\usepackage{graphics}
+\usepackage{float}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{hyperref}
+\usepackage{calc}
+\usepackage{enumitem}
+\usepackage{subcaption}
+\usepackage{footnote}
+\usepackage[bottom]{footmisc}
+\usepackage{multirow}
+\usepackage{threeparttable}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{array}
+\usepackage{rotating}
+\usepackage{setspace}
+\usepackage{wrapfig}
+\graphicspath{{./images/}}
+
+\usepackage{biblatex}
+\addbibresource{bibliography.bib}
+\usepackage{csquotes}
+
+%Numbered environment
+\newcounter{example}[section]
+\newenvironment{example}[1][]{
+    \refstepcounter{example}\par\medskip
+    \noindent \textbf{Example~\theexample. #1}\newline\rmfamily}
+    {\medskip}
+
+\begin{document}
+
+\input{preamble/front}
+
+\thispagestyle{empty}
+
+\input{chapters/abstract}
+
+\tableofcontents
+
+\chapter{Introduzione}
+\input{chapters/introduction}
+
+\chapter{Biologia Computazionale}
+\label{chap:comp_bio}
+\input{chapters/bioInformatics}
+
+\chapter{Descrizione del Problema Affrontato}
+\input{chapters/description_of_the_problem}
+
+\chapter{Soluzione Proposta}
+\input{chapters/solution}
+
+\printbibliography
+
+\end{document}

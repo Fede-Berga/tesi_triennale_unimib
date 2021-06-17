@@ -1,6 +1,6 @@
 La sfida a cui ho accettato di sottopormi, consiste in un importante problema di pangenomica computazionale, ovvero quello di costruire, in linguaggio Rust, uno splicing graph  a partire da un allineameto multiplo di trascritti di un gene fornito in input. 
 
-Prima di esporre la soluzione al problema saranno necessari alcuni concetti preliminari, quali quelli di \textit{Allineamento Multiplo} e \textit{Splicing Graph}. Nozioni come \textit{Hugo Name} o \textit{Trascritto} sono già stati forniti nel capitolo \ref{chap:comp_bio}.
+Prima di esporre la soluzione al problema, saranno necessari alcuni concetti preliminari, quali quelli di \textit{Allineamento Multiplo} e \textit{Splicing Graph}. Nozioni come \textit{Hugo Name} o \textit{Trascritto} sono già stati forniti nel capitolo \ref{chap:comp_bio}.
 
 \section{Allineamento di Sequenze}
 In generale, un allineamento di sequenze è una procedura bioinformatica con cui vengono messe a confronto ed allineate due o più sequenze primarie di aminoacidi, DNA o RNA. L'allineamento permette di individuare regioni identiche o simili che possono avere relazioni funzionali, strutturali o filogenetiche (evolutive). Spesso l'allineamento viene utilizzato per verificare se una sequenza di interesse sia presente all'interno di un database di sequenze conosciute oppure se ne esista una simile. 
@@ -14,7 +14,7 @@ In simboli, per distanza, si intende una funzione $d: \mathbb{S}\times \mathbb{S
 \begin{itemize}
     \item \textsc{Riflessività:} $d(x,y)=0 \iff x=y \textrm{ } \forall \textrm{ } x,y \in \mathbb{S}$
     \item \textsc{Simmetria:} $d(x,y)=d(y,x) \textrm{ } \forall \textrm{ } x,y \in \mathbb{S}$
-    \item \textsc{Disuguagianza Triangolare:} $d(x,y) +d(y,z)\geq d(x,z), \textrm{ } \forall \textrm{ } x,y,z \in \mathbb{S}$
+    \item \textsc{Disuguaglianza Triangolare:} $d(x,y) +d(y,z)\geq d(x,z), \textrm{ } \forall \textrm{ } x,y,z \in \mathbb{S}$
 \end{itemize}
 
 Per fare in modo di poter allineare due stringhe con lunghezze diverse, vengono introdotti gli \textit{Indel} (-), che hanno la funzione di "Riempire i buchi". Ci sono due restrizioni nell'iserimento degli indel:
@@ -61,10 +61,10 @@ Dove $score(s_1[i], s_2[j])$ è il valore del'incolonnamento della colonna presa
 
 In breve un allineamento può essere interpretato come una misura di omologia tra due o più sequenze. I mismatches possono essere interpretati come punti di mutazione tra le sequenze, invece gli indel o le sequenze di indel (GAP) possono essere interpretate come punti di divergenza nelle sequenze genomiche 
 
-\subsection{Algoritmi Utilizzati per performare un Allineamento}
+\section{Algoritmi di Allineamento}
 Esistono due principali algoritmi che performano allineamenti:  l'algoritmo di Needleman-Wunsch che performa un allineamento globale, cioè allinea le sequenze nella loro interezza e l'algoritmo di Smith-Waterman, che invece performa un allineamento locale, cioè evidenzia regioni simili nelle sequenze genomiche.
 
-\subsubsection{Algoritmo di Needleman-Wunsch}
+\subsection{Algoritmo di Needleman-Wunsch}
 L'algoritmo di Needleman-Wunsch utilizza un approccio di programmazione dinamica per risolvere il problema e definisce una equazione di ricorrenza struttutata nel seguente modo : 
 
 \begin{equation*}
@@ -102,8 +102,8 @@ L'allineamento può essere ottenuto tramite l'usuale \textit{TraceBack} della ma
     \label{fig:nw}
 \end{figure}
 
-\subsubsection{Algoritmo di Smith-Waterman}
-L'algoritmo di Smith-Waterman, come quello di Needleman-Wunsch, utilizza un approccio di programmazione dinamica, ma a differenza di quest'ultimo, evidenziare le sottostringhe di $s_1$ ed $s_2$ che massimizzano il punteggio di allineamento. In altre parole cerca di trovare $t_1=s_1[h:i]$ e $t_2=s_2[k:j]$ tale che il punteggio di allineamento di $t_1$ e $t_2$ sia massimo.
+\subsection{Algoritmo di Smith-Waterman}
+L'algoritmo di Smith-Waterman, come quello di Needleman-Wunsch, utilizza un approccio di programmazione dinamica, ma a differenza di quest'ultimo, evidenzia le sottostringhe di $s_1$ ed $s_2$ che massimizzano il punteggio di allineamento. In altre parole cerca di trovare $t_1=s_1[h:i]$ e $t_2=s_2[k:j]$ tale che il punteggio di allineamento di $t_1$ e $t_2$ sia massimo.
 
 Per raggiungere questo obiettivo pone un limite inferiore al punteggio di allineamento, che non può essere negativo, aggiungendo un nuovo caso all'equazione di ricorrenza dell'algoritmo di Needleman-Wunsch, che si modifica nel seguente modo:
 
@@ -124,7 +124,7 @@ Per raggiungere questo obiettivo pone un limite inferiore al punteggio di alline
 
 dove $d(s1[i],s2[j])$, come in Needleman-Wunsch, è il punteggio ottenuto dalla matrice di score.
 
-Le condizioni al contorno sono differenti da quele dell'algoritmo di Needleman-Wunsch, in quanto un allineamento non può avere punteggio negativo, e si modificano come segue:
+Le condizioni al contorno sono differenti da quelle dell'algoritmo di Needleman-Wunsch, in quanto un allineamento non può avere punteggio negativo, e si modificano come segue:
 
 \begin{itemize}
     \item $M[0,0]=0$
@@ -139,15 +139,16 @@ Il Traceback diventa però più complicato, in quanto deve essere effettuato dal
 \begin{figure}[ht]
     \centering
     \includegraphics[scale=0.45]{images/esempio sw.PNG}
-    \caption{Esempio di esecuzione dell'algoritmo di Smith-Waterman sul stessa istanza della figura \ref{fig:nw}}
+    \caption{Esempio di esecuzione dell'algoritmo di Smith-Waterman sulla stessa istanza della figura \ref{fig:nw}}
     \label{fig:sw}
 \end{figure}
 
+\clearpage
 \section{Allineamento multiplo di sequenze}
 
 L'allineamento multiplo è un'esensione del problema dell'allineamento di due sequenze, infatti, l'istanza del problema non sono più due sole strighe, ma un insieme di $k$ stringhe $\mathbb{S}=\{s_1,s_2,s_3,..,s_k\}$.
 
-\begin{figure}
+\begin{figure}[ht]
     \centering
     \includegraphics[scale=0.5]{images/multiple sequence alignment.png}
     \caption{Esempio di allineamento multiplo tra sequenze}
@@ -160,9 +161,11 @@ Un altro problema è la funzione codificata nella matrice di score. Infatti essa
 
 Questo problema è risolto utilizzando la funzione \textit{Sum of Pairs} che somma il punteggio di tutte le righe, prese a coppie, in una colonna di allineamento e ne fa la somma.
 
-Una possibile soluzione al problema dell'allineamento multiplo, è un algoritmo di programmazione dinamica. Questa volta però, a differenza dei due precedenti, l'ultima componente dell'allineamneto può trovarsi in $2^k-1$ casi (non è possibile il caso di soli indel).
+Una possibile soluzione al problema dell'allineamento multiplo, è un algoritmo di programmazione dinamica. Questa volta però, a differenza dei due precedenti, l'ultima componente dell'allineamento può trovarsi in $2^k-1$ casi (non è possibile il caso di soli indel).
 
 Il tempo di calcolo è $\mathcal{O}(n^k)$ per un numero contenuto di strighe, altrimenti è \textit{NP-Completo}.
+
+\newpage
 
 \section{Splicing Graph}
 Come accennato nel capitolo riguardante la biologia molecolare, lo splicing alternativo è un fenomeno frequentemente osservato che sintetizza vari tracritti dello stesso gene.
@@ -174,13 +177,13 @@ Uno splicing graph cerca di assolvere a questo compito, accorpando, dove possibi
 Uno Splicing Graph è un Grafo Diretto Aciclico (\textbf{DAG}) tale che \cite{bubbles} \cite{spicingest}:
 
 \begin{itemize}
-    \item I \textsc{Verici} rappresentano i siti di splicing per un gene dato. Sono numerati da 1 a n con un identificatore univoco ed etichettati da una sottostringa dei trascritti in input.
+    \item I \textsc{Vertici} rappresentano i siti di splicing per un gene dato. Sono numerati da 1 a n con un identificatore univoco ed etichettati da una sottostringa dei trascritti in input.
     \item Gli \textsc{Archi} rappresentano gli esoni e gli introni tra i siti di splicing. Seguono un ordine crescente degli identificatori univoci dei nodi.
 \end{itemize}
 
 Sono aggiunti due nodi "Artificiali" , etichettati con "first\_node" e "last\_node", che hanno come identificatori univoci rispettivamente 1 e n, che segnano i punti di inizio e di fine nella lettura dei trascritti.
 
-\begin{figure}
+\begin{figure}[ht]
     \centering
     \includegraphics[scale=0.55]{images/Spling graph example.PNG}
     \caption{Esempio di Splicing graph, creato dal mio programma, con l'allineamento multiplo di riferimento}
@@ -189,10 +192,10 @@ Sono aggiunti due nodi "Artificiali" , etichettati con "first\_node" e "last\_no
 
 Non tutti i percorsi $First\_node \to Last\_node$ corrispondo agli effettivi trascritti del gene. Sarebbe necessario limitare il numero di questi falsi trascritti.
 
-\section{Lavoro Richiesto}
+\section{Costruzione dello Splicing Graph}
 Mi è stato richiesto di implementare una libreria che permetta di creare un grafo di splicing.
 
-In input è fornito un allineamento multiplo dei trascritti per fare in modo di evidenziare le omologie tra le isoforme di splicing al fine di rendere più agevole la creazione del grafo. Sono state utilizzate due librerie esterne che permettono costruire un \textit{Variation Graph} (una generalizzazione dello Splicing Graph) ed eseguire il parsing di file FASTA, uno dei formati standard in bioinformatica, per ottenere l'allineamento multiplo. 
+In input è fornito un allineamento multiplo di trascritti per fare in modo di evidenziare le omologie tra le isoforme di splicing al fine di rendere più agevole la creazione del grafo. Sono state utilizzate due librerie esterne che permettono di costruire un \textit{Variation Graph} (una generalizzazione dello Splicing Graph) ed eseguire il parsing di file FASTA, uno dei formati standard in bioinformatica, per ottenere l'allineamento multiplo. 
 
 Il parsing di file in formato MAF (Multiple Alignment Format), un altro formato standard in bioinformatica, in assenza di un'alternativa migliore, è stato da me implemementato a partire da una libreria incompleta che lo eseguiva parzialmente.
 

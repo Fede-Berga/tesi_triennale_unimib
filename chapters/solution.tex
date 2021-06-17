@@ -1,8 +1,8 @@
-Questo capitolo ha lo scopo di illustare la soluzione proposta, i passaggi intermedi ed i regionamenti logici che mi hanno portato ad elaborare la soluzione finale.
+Questo capitolo ha lo scopo di illustare la soluzione proposta, i passaggi intermedi ed i ragionamenti logici che mi hanno portato ad elaborare la soluzione finale.
 
 Sarà anzitutto chiarito il perchè del linguaggio \textit{Rust}, definendo le sue particolarità ed i sui punti critici, poi saranno illustrate le pubblicazioni utilizzate per migliorare le soluzioni iniziali, infine verrà eseguita un'analisi dei tempi di calcolo della soluzione definitiva.
 
-\section{Perchè il Linguaggio Rust}
+\section{Linguaggio Rust}
 Il linguaggio Rust è un linguaggio di programmazione sviluppato da Mozilla insieme alla comunità open source per la programmazione di sistemi.
 
 \begin{figure}
@@ -18,7 +18,7 @@ Rust non permette l'utilizzo di \textit{null pointer} e \textit{Dangling Referen
 
 Rust è usato in bioinformatica, ma in generale in ambito scientifico, perchè oltre alle caratteristiche sopra elencate, è un linguaggio con una buona espressività, simile a quella di un linguaggio a più alto livello, ma più veloce. Ciò lo rende adeguato allo sviluppo di applicativi che necessitano di una buona velocità d'esecuzione e per utenti che non vogliono perdere tempo con gli errori tipici, ad esempio, del C++. Una pecca di rust è che, in generale, è difficoltoso da imparare \cite{whyrust}. 
 
-\section{Primo Approccio}
+\section{Soluzione Iniziale}
 Prima di poter lavorare sul problema effettivo, c'è stato un preambolo di circa tre settimane in cui è avvenuta una grossa fase di apprendimento. Dapprima ho imparato il linguaggio Rust, poi ho appreso i costrutti resi disponibili dalle varie librerie per adempiere ai miei compiti. In questa fase ho anche creato il parser di file in formato MAF, che è stato un buon esercizio per apprendere ancora meglio Rust.
 
 Terminato questo preambolo, l'approccio che ho deciso di utilizzare per la costruzione dello splicing graph, è stato quello di scansionare l'allineamento colonna per colonna e costruire il grafo di conseguenza. 
@@ -36,13 +36,15 @@ In seguito, per ogni colonna dell'allineamento, si costruisce l'insieme dei simb
     \label{fig:SplicingGraphConstructionPhases}
 \end{figure}
 
-Infine si assiste ad una fase di epilogo in cui tutti i nodi formati nell'ultima iterazione della fase precedente vengono agganciati ad un ultimo nodo etichettato \textit{last\_node} che corrisponde al nodo di fine e unico nodo foglia del grafo.
+Infine si assiste ad una fase di epilogo in cui tutti i nodi formati nell'ultima iterazione della fase precedente vengono agganciati ad un ultimo nodo etichettato \textit{last\_node}, che corrisponde al nodo di fine e unico nodo foglia del grafo.
 
-Come si può inture, questo metodo di creazione dello splicing graph, porta alla creazione di un grafo con un'eccessivo numero di nodi ed un eccessivo numero di percorsi $first\_node \to last\_node$. Ricordo che, dove possibile, è necessario limitare il numero di questi percorsi.
+Come si può intuire, questo metodo di creazione dello splicing graph, porta alla creazione di un grafo con un eccessivo numero di nodi ed un eccessivo numero di percorsi $first\_node \to last\_node$. Ricordo che, dove possibile, è necessario limitare il numero di questi percorsi.
 
-Una soluzione potrebbe essere quella di seguire lo stesso approccio per la costruzione del grafo, ma invece di considerare l'allineamento colonna per colonna, procedere con un partizionamento opportuno per fare sì di creare dei nodi con etichetta di lunghezza maggiore di 1, facendo sì di diminuire i nodi già presenti.
+Una soluzione potrebbe essere quella di seguire lo stesso approccio per la costruzione del grafo, ma invece di considerare l'allineamento colonna per colonna, procedere con un partizionamento opportuno per fare sì di creare dei nodi con etichetta di lunghezza maggiore di 1, in modo da diminuire i nodi già presenti.
 
 La prossima sezione spiegherà le metodologie utilizzate per l'ottenimento di un partizionamento opportuno.
+
+\newpage
 
 \section{Metodologie di partizionamento}
 Un buon partizionamento, dovrebbe fare in modo di accorpare il più possibile le colonne dell'allineamento, così da diminuire le quantità di nodi e di percorsi $first\_node \to last\_node$. Per assolvere a questo compito, sono utilizzati due approcci, uno di \textit{programmazione Dimanica} e uno \textit{Greedy}, che originariamente sono stati pensati per risolvere il \textit{Founder Sequence Reconstruction Problem}. Entrambi gli approcci sono descritti in \cite{ukkonen}.
@@ -72,7 +74,7 @@ L'insieme dei ricombinanti:
   \end{tabular}
 \end{center}
 
-L'insieme dei fodatori:
+L'insieme dei fondatori:
 \begin{center}
   \begin{tabular}{ c c c c c c c c c c c c}
     0 & 0 & 1 & 0 & 1 & 1 & 1 & 0 & 0 & 0 & 1 & 1 \\ 
@@ -88,17 +90,17 @@ A questo punto, il nostro problema è quello di trovare il set di fondatori $\ma
 Ciò ci porta alla formalizzazione di due problemi:
 
 \begin{itemize}
-    \item Il primo è il \textsc{minimum founder set problem} che consiste nel trovare il set di fondatori $\mathbb{F}$ di cardinalità minima tale che il parse di $\mathbb{}$ in termini di $\mathbb{F}$ abbia $\lambda_{min} > L$ oppure $\lambda_{ave} > L$ per un L dato chiamato \textit{Threshold}.
+    \item Il primo è il \textsc{minimum founder set problem} che consiste nel trovare il set di fondatori $\mathbb{F}$ di cardinalità minima tale che il parse di $\mathbb{C}$ in termini di $\mathbb{F}$ abbia $\lambda_{min} > L$ oppure $\lambda_{ave} > L$ per un L dato chiamato \textit{Threshold}.
     
     \item Il secondo è il \textsc{maximum fragment length problem} che consiste nel massimizzare $\lambda_{min}$ e/o $\lambda_{ave}$ sotto la condizione che la cardialità di $\mathbb{F} \leq M $ per un M dato.
 \end{itemize}
 
-Al fine di costruire uno Splicing Graph, è sembrato più congeniale, modellare il problema a partire dal \textsc{minimum founder set problem}, in quato si è voluta tenere più bassa possibile la cardinalità di $\mathbb{F}$. Ciò ha porta ad un buon grafo, a cui possono essere fatte ulteriori migliorie.
+Al fine di costruire uno Splicing Graph, è sembrato più congeniale, modellare il problema a partire dal \textsc{minimum founder set problem}, in quato si è voluta tenere più bassa possibile la cardinalità di $\mathbb{F}$. Ciò ha portato ad un buon grafo, a cui possono essere fatte ulteriori migliorie.
 
 \subsection{Soluzione di Programmazione Dinamica}
-Un algoritmo risolutivo del minimum founder set problem è basato sull'idea di segmentare l'insieme de ricombinanti $\mathbb{C}$ in segmenti disgiunti, in modo da partizionare interamente $\mathbb{C}$. Un segmento $C[j,k]$ è definito come l'insieme si tutte le sottosequenze $c_{ij}...c_{ik}$ dell'insieme dei Ricombinanti. 
+Un algoritmo risolutivo del minimum founder set problem è basato sull'idea di segmentare l'insieme dei ricombinanti $\mathbb{C}$ in segmenti disgiunti, in modo da partizionare interamente $\mathbb{C}$. Un segmento $C[j,k]$ è definito come l'insieme di tutte le sottosequenze $c_{ij}...c_{ik}$ dell'insieme dei Ricombinanti. 
 
-Il nostro obiettivo diventa quindi quello di dare un parsing di $\mathbb{C}$ con $\lambda_{min} > L$ per un L dato, tale che la ardinalità massima dei segmenti sia minimizzata, ciò minimimizza anche la cardinalità dell'insieme $\mathbb{F}$ dato che $|\mathbb{F}|=|\max\{C[j,k]\}|$
+Il nostro obiettivo diventa quindi quello di dare un parsing di $\mathbb{C}$ con $\lambda_{min} > L$ per un L dato, tale che la cardinalità massima dei segmenti sia minimizzata, ciò minimimizza anche la cardinalità dell'insieme $\mathbb{F}$ dato che $|\mathbb{F}|=|\max\{C[j,k]\}|$
 
 Si vuole quindi computare:
 
@@ -106,7 +108,7 @@ Si vuole quindi computare:
     M(n)=\min_{s \in S_L}\{|C[j,k]| : |C[j,k]| \in s \} 
 \end{equation*}
 
-Dove s è linsieme dei partizionamenti possibili su $\mathbb{C}$.
+Dove s è l'insieme dei partizionamenti possibili su $\mathbb{C}$.
 
 Quindi $M(n)$ può essere ottenuto valutando $M(L),M(L+1)...M(n),$ nel seguente modo:
 
@@ -132,11 +134,13 @@ E' opportuno o meno contare sottosequenze che presentano solo indel nella cardin
 
 Come conseguenza della soluzione greedy presentata nella prossima sezione, sono arrivato alla conclusione che non ha senso il conteggio di una sottosequeza di soli indel nella cardinalità di un segmento. Invece ha senso il conteggio di una sottosequenza formata solo parzialmente da indel.
 
-In generale questa soluzione di programmazione dinamica non restituisce risultati ottimali.
+In generale questa, soluzione di programmazione dinamica, non restituisce risultati ottimali.
 
-In particolare con allineamenti di sequenze troppo diverse tra di loro, si assiste ad un partizionamento praticamente inesistente, nel senso che, in un caso linite, si verrà a formare un grafo con $n+2$ vertici, con etichette corrispondenti alle intere sequenze in input, che corrispondono alle $n$ sequenze in aggiunta al nodo etichettato $first\_node$ e a quello etichettato $last\_node$.
+In particolare, con allineamenti di sequenze troppo diverse tra di loro, si assiste ad un partizionamento praticamente inesistente, nel senso che, in un caso limite, si verrà a formare un grafo con $n+2$ vertici, con etichette corrispondenti alle intere sequenze in input, che corrispondono alle $n$ sequenze in aggiunta al nodo etichettato $first\_node$ e a quello etichettato $last\_node$.
 
 La soluzione greedy cerca di ovviare a questo problema.
+
+\newpage
 
 \subsection{Soluzione Greedy}
 
@@ -148,13 +152,13 @@ Questa soluzione è però fin troppo semplicistica, infatti non contempla il fat
 
 Che fare in questo caso?
 
-Si potrebbe pensare di scegliere $M$ opporunamente, in modo da non permettere a questo caso di presentarsi. Dovrebbe essere sufficiente inserire un valore di $M \geq \min \{|\Sigma|,n\}$ dove $n$ è il numero delle sequenze e $|\Sigma|$ è la cardinalità dell'alfabeto su cui sono costruite le stringhe.
+Si potrebbe pensare di scegliere $M$ opportunamente, in modo da non permettere a questo caso di presentarsi. Dovrebbe essere sufficiente inserire un valore di $M \geq \min \{|\Sigma|,n\}$ dove $n$ è il numero delle sequenze e $|\Sigma|$ è la cardinalità dell'alfabeto su cui sono costruite le stringhe.
 
 Questo tipo di soluzione porterebbe però, in alcuni casi, a segmenti troppo lunghi, quindi a non accorpare al meglio l'allineamento.
 
 Al fine di poter mantenere un valore di $M>0$, inizialmente ho pensato di interrompere il segmento nel caso $|C[k,k+1]| > M$. Però ciò portava ad un grafo come quello mostrato in figura \ref{fig:primo_esempio_splicing_graph_greedy}.
 
-\begin{figure}
+\begin{figure}[ht]
     \centering
     \includegraphics[scale=0.7]{images/greedy1.PNG}
     \caption{Primo Esempio di soluzione greedy. Per comodità, è riportato solo un frammento del grafo}
@@ -163,34 +167,237 @@ Al fine di poter mantenere un valore di $M>0$, inizialmente ho pensato di interr
 
 Logicamente si vorrebbero accorpare i nodi 18, 20, 22, 24, 26, 28 in un unico nodo, così come i vertici 19, 21, 23, 25, 27, 29.
 
-Ciò è possibile se si permette all'algoritmo di partizionamento, in certi casi, di non attenesi al vincolo di cardinalità dei segmenti. I casi in questione sono proprio quelli menzionati in precedenza, infatti se il segmento di cardinalità minima già eccede $M$, allora gli è permesso accorpare più colonne dell'allineamento fino a quando non aumenta ulteriormente di cardinalità, o quando non è possibile formare un nuovo frammento di cardinalità minore. Allora si inizia un nuovo fragmento.
+Ciò è possibile se si permette all'algoritmo di partizionamento, in certi casi, di non attenersi al vincolo di cardinalità dei segmenti. I casi in questione sono proprio quelli menzionati in precedenza, infatti se il segmento di cardinalità minima già eccede $M$, allora gli è permesso accorpare più colonne dell'allineamento fino a quando non aumenta ulteriormente di cardinalità, o quando non è possibile formare un nuovo frammento di cardinalità minore. Allora si inizia un nuovo frammento.
 
-Nel conteggio di cardinalità dei segmenti sono omesse le sottosequenze di sonli indel, esattamente come nell'algoritmo di programmazione dinamica menzionato nella sezione precedente.
+Nel conteggio di cardinalità dei segmenti sono omesse le sottosequenze di soli indel, esattamente come nell'algoritmo di programmazione dinamica menzionato nella sezione precedente.
 
 Questo "Nuovo" algoritmo greedy permette di formare un grafo come quello in figura \ref{fig:greedy_definitivo}.
 
-\begin{figure}
+\begin{figure}[ht]
     \centering
     \includegraphics[scale=0.9]{images/greedy2.PNG}
-    \caption{Esempio definitivo di soluzione greedy, Per comodità, è riportato solo un frammento del grafo e sono riportati gli indici dell'allineamento corrispondenti alle etichette dei nodi}
+    \caption{Esempio definitivo di soluzione greedy. Per comodità, è riportato solo un frammento del grafo e sono riportati gli indici dell'allineamento corrispondenti alle etichette dei nodi}
     \label{fig:greedy_definitivo}
 \end{figure}
 
-\section{Approccio Definitivo}
-Tra il primo approccio e l'approccio definitivo si sono susseguiti numerosi tentativi. Per chiarezza espositiva, verranno esposti solo il primo e il definitivo, in modo da non essere troppo prolissi nell'esposizione.
+\newpage
 
-Avendo un partizionamento adeguato, la fase di corstruzione del grafo risulta molto simile a quella del primo approccio. 
+\section{Soluzione Definitiva}
+Tra il primo approccio e l'approccio definitivo si sono susseguiti numerosi tentativi. Ad esempio, nelle prime soluzioni, il calcolo nella cardinalità dei segmenti includeva anche le sequenze di soli indel, in seguito ciò è stato cambiato. 
 
-La fase di inizializzazione è identica a quella precedentemente descritta, come la fase di terminazione, mentre quella di costruzione vera e propria deve tenere conto che non si ragiona più in termini di siboli, ma in termini di sottostringhe dell'allineamento. A parte questo, il grafo è costruito incrementalmente come mostrato nella figura \ref{fig:SplicingGraphConstructionPhases}.
+Per una maggiore chiarezza espositiva non verranno mostrati tutti i tentativi eseguiti, ma solo il primo e l'ultimo.
 
-Il partizionamento è ottenuto tramite la segmentazione greedy. in ogni caso l'utente può utilizzare l'algoritmo di programmazione dinamica.
+Avendo un partizionamento adeguato, costruito mediante soluzione greedy o di programmazione dinamica, la corstruzione del grafo risulta molto simile a quella del primo approccio. 
 
-Il valore si soglia $M$ è impostabile dall'utente, ma è consigliato tenerlo basso per fare in modo di costruire un grafo migliore. Ad esempio, nella figura \ref{fig:greedy_definitivo}, è stato scelto il valore $M=1$.
+La fase di inizializzazione è identica a quella precedentemente descritta, come la fase di terminazione, mentre quella di costruzione vera e propria deve tenere conto che non si ragiona più in termini di simboli, ma in termini di sottostringhe dell'allineamento. 
+
+Innanzitutto si itera sul partizionamento e per ogni segmento se ne estrae la cardinalità e l'insieme delle sottosequenze contenute, in seguito, per ognuna di queste, si crea un nodo che viene concatenato al precedente nodo correttamente, infine viene aggiunto al path corretto.
+
+Per avere un'idea più chiara della costruzione del grafo, si può comunque fare riferimento alla figura \ref{fig:SplicingGraphConstructionPhases}, in quanto la costruzione avviene incrementalmente come mostrato. Verrà comunque fornita un'immagine contenente il codice Rust della procedura di costruzione del grafo (\ref{fig:build_vg}).
+
+I valori di soglia, $M$ se si preferisce la soluzione greedy, o $L$ se si preferisce quella di programmazione dinamica, sono impostabili dall'utente, ma è consigliato tenerli bassi in entrambi i casi, per fare in modo di costruire un grafo migliore. Ad esempio, nella figura \ref{fig:greedy_definitivo}, è stato scelto il valore $M=1$, quindi l'algoritmo greedy di partizionamento.
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.7]{images/build_vg.PNG}
+    \caption{Procedura Rust di costruzione del Grafo di Splicing}
+    \label{fig:build_vg}
+\end{figure}
+
+\newpage
 
 \section{Tempi di Calcolo}
-Fare un'analisi formale dei tempi di calcolo risulterebbe difficile. La fase di preprocessamento delle sequenze, in cui viene estratto il partizionamento, come detto il precedenza, ha tempo $\mathcal{O}(nm)$. 
+Fare un'analisi formale dei tempi di calcolo risulterebbe difficile, in quanto dipende da diversi fattori quali il tipo di partizionamento utilizzato, la lunghezza dei segmenti formati e il numero di sequenze in input.  
 
-La vera e propria fase di costruzione prende un tempo che è proporzionale al numero dei segmenti nella partizione creata, alla cardinalità dei segmenti e al numero delle sequenze allineate.
+La fase di preprocessamento delle sequenze, in cui viene estratto il partizionamento, ha tempi diversi a seconda del partizionamento utilizzato, in particolare:
+
+\begin{itemize}
+    \item \textsc{Greedy} : il tempo di esecuzione è $\mathcal{O}(nm)$.
+    \item \textsc{Programmazione Dinamica} : il tempo di esecuzione è $\mathcal{O}(n^2m)$.
+\end{itemize}
+
+La vera e propria procedura di costruzione de grafo, è scomposta in tre fasi separate:
+
+\begin{itemize}
+    \item \textsc{Fase di inizializzazione} che prende un tempo $\mathcal{O}(n)$ dove $n$ è il numero delle sequenze, in quanto deve inizializzare i path per ogni sequenza e inserire $first\_node$ per ognuno di questi.
+    \item \textsc{Fase di costruzione} che, come si può vedere in figura \ref{fig:build_vg} prende un tempo che è proporzionale al numero di segmenti formati durante il pre-processamento, e al numero di sequenze in input. inoltre è proporzionale alla cardinalità del segmento preso in considerazione alla data iterazione del ciclo più esterno.
+    In sistesi si potrebbe pensare ad un $\mathcal{O}(k(n + nm))$ dove $n$ è il numero dei trascritti, $k$ è il numero dei segmenti, $m$ è la cardinalità del segmento.
+    \item \textsc{Epilogo} che prende un tempo $\mathcal{O}(n)$ dove $n$ è il numero delle sequenze, in quanto deve finalizzare i path per ogni sequenza e inserire $last\_node$ per ognuno di questi.
+\end{itemize}
+
+In ogni caso viene complicato stabilire i tempi con accuratezza perchè, ad esempio la lunghezza dei segmenti diminuisce le iterazioni del ciclo più esterno, ma potrebbe allungare i tempi per il confronto delle sottostringhe.
+
+\newpage
+
+\section{Architettura del Software}
+Questa sezione è dedicata ad esporre l'architettura definitiva del software prodotto.
+
+Verrà introdotta la struttura software del parser MAF e di quello Fasta, dopo di che verrà introdotta la struct \textit{Partitioner} che si occupa del partizionamento e infine la struct \textit{VariationGraph} che si occupa della costruzione e visualizzazione del grafo.
+
+\subsection{I parser MAF e FASTA}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale=0.5]{images/fasta example.png}
+    \caption{Esempio di allineamento memorizzato su file FASTA}
+    \label{fig:fasta_alignment}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale=0.7]{images/Maf file example.PNG}
+    \caption{Esempio di allineamento memorizzato su file MAF}
+    \label{fig:maf_alignment}
+\end{figure}
+
+Il parser Maf si avvale di una serie di struct ed enum, ognuna relativa ad un particolare elemento del file MAF. 
+
+Le prinipali sono:
+
+\begin{itemize}
+    \item \textsc{MAFItem}: una enum che rappresenta un elemento del file MAF, quindi un commento od un blocco di allineamento.
+    
+    \item \textsc{MAFBlock}: una struct che rappresenta un blocco di allineamento che contiene un vettore di \textit{MAFBlockEntry} e una mappa contenente i metadati di intestazione del blocco.
+    
+    \item \textsc{MAFBlockAlignedEntry} è una struct che rappresenta uno dei due tipi di \textit{MAFBlockEntry}, questa struct contiene effettivamente la sequenza di basi allineate e l'identificativo della sequenza
+\end{itemize}
+
+Il paser Fasta si avvale di una libreria chiamata RustBio che performa il parser per noi.
+
+Siccome i due parser producono oggetti differenti, è stato necessario "unificarli" in un unico oggetto che contiene solo le informazioni necessarie ai fini della costruzione dello splicing Graph.
+
+Questo oggetto è stato chiamato \textit{Alignment} e contiene :
+
+\begin{itemize}
+    \item Le effettive sequenze allineate 
+    \item Per ogni sequenza viene memorizzato anche l'identificativo univoco
+    \item Un metodo per stampare su file l'allineamento nel caso sia necessario.
+\end{itemize}
+
+Al fine di agevolare il parsing da ulteriori formati di file, nel caso ce ne fossero, è stato inserito un trait denominato \textit{Parser}. Si può vedere un trait come un'interfaccia java che può fungere da linea guida, nel nostro caso, per lo sviluppo di ulteriori parser.
+
+Inoltre è inserita una enum che incapsula gli errori che possono verificarsi al momento del parsing, ad esempio un file non trovato, oppure un file che non contiene nessun allineamento.
+
+\newpage
+
+\subsection{Partitioner}
+La struct \textit{Partitioner} si occupa dei eseguire il partizionamento dell'allineamento multiplo. Per assolvere a questo compito si avvale di alcuni costrutti aggiuntivi.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale=1]{images/partitioning_example.PNG}
+    \caption{Esempio di partizionamento su un'istanza semplice del problema}
+    \label{fig:partitioning_example}
+\end{figure}
+
+Come descritto nel capitolo precedente, il partizionamento viene eseguito da due algoritmi differenti che utilizzano due strategie diverse, perciò è sembrato opportuno definire un trait chiamato \textit{Partitioner} che fungesse da linea guida per lo sviluppo delle struct effettive che effettuano il partizionamento.
+
+Per la rappresentazione del partizionamento è stata scelta una classe che contiene un vettore di elementi di tipo \textit{Inerval}. Interval è una struct congeniale allo scopo di una rappresentazione più chiara di un singolo segmento, si compone di un indice di inizio, chiamato \textit{begin} e un indice di fine chiamato \textit{end} che rappresentano rispettivamente l'inizio e la fine di ogni segmento.
+Gli intervalli sono sempre disgiunti e crescenti.
+
+La struct che performa il partizionamento in prorammazione dinamica è denominata \textit{DynProgPartitioner}. Questa struct si preoccupa di eseguire i controlli sul parametro \textit{threshold} al fine di accertarne la validità, inoltre performa l'effettivo algoritmo di programmazione dinamica.
+
+Per quanto riguarda quest'ultimo, per agevolare il traceback dell'array di programmazione dimanica, viene utilizzata una struct aggiuntiva, chiamata \textit{Cell}, che contiene l'effettivo valore del partizionamento, ma anche un campo previous che è utile nella ricostruzione dei segmenti.
+
+Al momento del traceback, vengono formati gli intervalli del partizionamento.
+
+La struct che invece performa l'algoritmo greedy, è chiamata \textit{GreedyPartitioner}. Questa struct performa il partizionamento nel modo descritto nel capitolo precedente, iterando sull'allineamento e verificando che i segmenti siano di cardinalità minore di \textit{threshold}. Se la cardinalità diventa maggiore, cerca di allungare il segmento il più possibile fino a quando non si accorge che si potrebbe formare un segmento di cardinalità minore o che potrebbe ampliarla uteriormente.
+
+Per il calcolo della cardinalità di ogni segmento, viene utilizzato un metodo comune, dato che viene fatto nello stesso modo.
+
+\newpage
+
+\subsection{VariationGraph}
+La struct \textit{Variation Graph} si occupa della costruzione dello splicing graph a partire da un partizionamento in input. Il partizionamento è ottenuto utilizzando il metodio greedy o di programmazione dinamica.
+
+La struct \textit{Variation Graph} contiene i riferimenti a first\_node e last\_node e un \textit{HashGraph} che rappresenta l'effettivo grafo. HashGraph è un tipo di dato importato una una libreria esterna.
+
+Il metodo \textit{build\_vg} si occupa della corstruzione progressiva del grafo a partire dal partizionamento in input, si avvale del metodo init per inizializzare tutti i \textit{Path} relativi alle sequenze e l'array dei predecessori per ogni sequenza input. 
+
+Il metodo build\_vg itera sulle partizione formate in precedenza per fare in modo di creare correttamente il grafo e i path contenenti i nodi correttamente etichettati e connessi. L'array dei predecessori è utile per tenere conto di quale nodo è presente nel path della sequenza associata, in modo da "Agganciare" correttamente il successivo.
+
+La costruzione si conclude con un epilogo in cui ad ogni path è aggiunto il nodo last\_node.
+
+La struct VariationGraph contiene anche altri metodi quali : 
+
+\begin{itemize}
+    \item \textsc{print\_path}: che stampa a schermo il path associato all'identificativo della sequenza passato come parametro.
+    
+    \item \textsc{get\_possible\_path}: che restituisce il numero di percorsi \newline $first\_node \to last\_node$. Questo metodo inizialmente è stato pensato come un metodo ricorsivo che si avvale di una funzione aggiuntiva per calcolare il numero di cammini possibili. Questo approccio però portava ad un tempo di esecuzione proporzionale al numero dei cammini presenti nel grafo, come si può vedere in figura \ref{fig:slow_get_path_num}.
+    
+    \begin{figure}[ht]
+        \centering
+        \includegraphics[scale=0.6]{images/slow_path_count.PNG}
+        \caption{versione del metodo $\mathcal{O}(|paths|)$}
+        \label{fig:slow_get_path_num}
+    \end{figure}
+   
+    Di seguito, come mostrato in figura \ref{fig:fast_get_path_num} è utilizzato un metodo di simil-programmazione-dinamica, che sfrutta il fatto di memorizzare il numero dei cammini che partono da un dato nodo e arrivano a last\_node per rendere il tempo di esecuzione proporzionale al numero dei nodi, che è, in generale, molto inferiore a quello dei cammini.
+    
+    \begin{figure}[ht]
+        \centering
+        \includegraphics[scale=0.6]{images/fast_path_count.PNG}
+        \caption{versione del metodo $\mathcal{O}(|V|)$}
+        \label{fig:fast_get_path_num}
+    \end{figure}
+    
+    \item \textsc{label\_len\_sum} : che restituisce la somma delle lunghezze delle etichette dei nodi del grafo.
+    
+    \item \textsc{print\_graph} : che stampa il grafo in un modo opportuno. In particolare, per ogni nodo nel grafo stampa : 
+    
+    \begin{itemize}
+        \item L'identificativo univoco
+        \item L'etichetta associata
+        \item I nodi entranti
+        \item I nodi uscenti
+    \end{itemize}
+\end{itemize}
+
+\newpage
+
+Nella figura \ref{fig:construction_example} verrà fatto un esempio di costruzione di splicing graph per dare un'idea migliore di come funziona l'architettura software creata.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale=0.6]{images/main example.PNG}
+    \caption{Esempio di costruzione del grafo di splicing}
+    \label{fig:construction_example}
+\end{figure}
+
+\clearpage
+
+\subsection{Test}
+Oltre alle struct sopra descritte, sono stati implementati una serie di test d'unità per verificare il corretto funzionamento dell'applicazione.
+Questi test si dividono in due parti:
+
+\begin{itemize}
+    \item \textsc{I test per verificare la correttezza dei Parser} che testano i parser in condizioni normali e condizioni al contorno, ad esempio con un file inesistente, con un file che non contiene allineamento, con un file che contiene più allineamenti.
+    \item \textsc{I test per verificare la correttezza della costruzione dello Splicing Graph} che fungono da esempio per l'utilizzo della libreria creata.
+\end{itemize}
+
+I test che verificano la correttezza del costruzione dello spliging graph non sono stati implementati a dovere perchè la libreria utilizzata non implementa il trait di uguaglianza tra elementi di tipo HashGraph, ciò non permette di verificare che il grafo sia formato corretamente
+
+\newpage
+
+\section{Considerazioni sulla qualità dell'allineamento in input}
+Dopo aver terminato la parte di costruzione del grafo di splicing, si è discusso della qualità dell'allineamento in input, che ovviamente è un fattore determinante per il corretto funzionamento del programma.
+
+Il software utilizzato per ottenere l'allineamento in input è chiamato \textit{Mafft}. Può performare un allineamento multiplo a partire da una serie di trascritti annotati su file Fasta con impostazioni di default che possono eventualmente essere personalizzate.
+
+Fino a quel punto, mafft era stato utilizzato solo con parametri di default, perciò lo scopo dell'ultima parte dello stage è stato quello di trovare le corrette impostazioni di Mafft che permettessero di allineare correttamente i trascritti in input.
+
+In questo software è possibile modificare, tra le altre cose, il peso di apertura ed estensione di GAP (sequenze di indel contigue), oltre che il costo dei mismatch (incolonnamento di due simboli differenti). La ricerca si è concentrata maggiormente su questi parametri sotto consiglio del tutor di stage.
+
+Sono stati fatti innumerevoli tentativi di modifica dei parametri sopra descritti, ma nessuno di questi si è rivelato efficace. La configurazione "corretta" per una serie di trascritti si rivelava scorretta per un'altra, perciò non è stato possibile trovare una soluzione univoca al problema.
+
+Nonostante ciò, un particolare degno di nota è che diminuendo il costo di apertura ed estensione dei GAP, il grafo di splicing si presenta, in generale, "migliore", nel senso che la somma della lunghezza delle etichette dei nodi è ridotta, rispetto alla lunghezza totale delle sequenze, di circa due terzi (in realtà dipende molto dalle sequenze in input) e il numero di percorsi $first\_node \to last\_node$ non esplode.
+
+
+
+
+
+
+
 
 
 
